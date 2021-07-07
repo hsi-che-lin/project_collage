@@ -1,0 +1,3 @@
+C:/Users/HSI-CHE LIN/start/project/collage/code/3_opencv_resize_and_crop/build/CMakeFiles/opencv_resize_and_crop.dir
+C:/Users/HSI-CHE LIN/start/project/collage/code/3_opencv_resize_and_crop/build/CMakeFiles/edit_cache.dir
+C:/Users/HSI-CHE LIN/start/project/collage/code/3_opencv_resize_and_crop/build/CMakeFiles/rebuild_cache.dir
