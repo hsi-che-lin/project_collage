@@ -19,34 +19,41 @@ Mat condence(Mat img, int factor);
 
 int main(void)
 {
-	string stream_path = "..\\..\\..\\Resources\\1.mp4";		// path to video
+	string read_path = "..\\..\\..\\Resources\\";				// path to video
 	string save_path = "..\\..\\..\\Resources\\screenshots\\";	// partial path to save screenshots
+	string cur_read_path;
 	string cur_save_path;										// complete path to save screenshots
-	VideoCapture cap(stream_path);
-	FILE *file_w;								// point to .txt file to save data
-	Mat img;									// a frame of the video
-	Mat img_resize;								// img resied to 144 x 256
-	Mat img_condence;							// condenced img
-	int num = 0;								// number of frames to save
-	int i = 0;									// frame counter
+	VideoCapture cap;
+	FILE *file_w;									// point to .txt file to save data
+	Mat img;										// a frame of the video
+	Mat img_resize;									// img resied to 144 x 256
+	Mat img_condence;								// condenced img
+	int vid_num = 0;
+	int num = 0;									// number of frames to save
+	int frame = 0;									// frame counter
 
 	file_w = fopen("..\\..\\..\\Resources\\data.txt", "w");
 
-	while (cap.grab()) {						// grab a fram
-		if (i++ == 750) {						// for evvery 750 frames
-			cap.retrieve(img);					// retrieve adn resize
-			resize(img, img_resize, Size(256, 144), INTER_AREA);
-			cur_save_path = save_path + to_string(num) + ".png";
-			imwrite(cur_save_path, img_resize);	// save the frame
+	cur_read_path = read_path + to_string(vid_num) + ".mp4";
+	while (cap.open(cur_read_path)) {
+		while (cap.grab()) {						// grab a fram
+			if (frame++ == 5400) {					// for every 5400 frames
+				cap.retrieve(img);					// retrieve adn resize
+				resize(img, img_resize, Size(256, 144), INTER_AREA);
+				cur_save_path = save_path + to_string(num) + ".png";
+				imwrite(cur_save_path, img_resize);	// save the frame
 
-			img_condence = condence(img, 2);	// condence frame and save data
-			fprintf(file_w, "%d ", img_condence.data[0]);
-			fprintf(file_w, "%d ", img_condence.data[1]);
-			fprintf(file_w, "%d\n", img_condence.data[2]);
+				img_condence = condence(img, 2);	// condence frame and save data
+				fprintf(file_w, "%d ", img_condence.data[0]);
+				fprintf(file_w, "%d ", img_condence.data[1]);
+				fprintf(file_w, "%d\n", img_condence.data[2]);
 
-			i = 0;								// reset counter
-			num++;
+				frame = 0;							// reset counter
+				num++;
+			}
 		}
+
+		cur_read_path = read_path + to_string(++vid_num) + ".mp4";
 	}
 
 	fclose(file_w);
