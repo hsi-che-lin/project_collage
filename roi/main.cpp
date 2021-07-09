@@ -26,7 +26,7 @@ int main(void)
 
 	for (i = 0; i < 14; i++) {
 		for (j = 0; j < 32; j++) {
-			read_path = path + to_string(i * 14 + j) + ".png";
+			read_path = path + to_string(i * 32 + j) + ".png";
 			unit = imread(read_path);
 			unit.convertTo(unit_cvt, CV_8UC3);				// this line is indispensable
 			unit_cvt.copyTo(Mat(img, Rect(i * 256, j * 144, 256, 144)));
