@@ -12,6 +12,8 @@
 using namespace std;
 using namespace cv;
 
+const double MSEC_DELTA = 0.5 * 60 * 30;						// interval of time to screenshot
+
 // this function return a 1-pixel image which represent the input img
 Mat condence(Mat img, int factor);
 
@@ -22,37 +24,35 @@ int main(void)
 	string read_path = "..\\..\\..\\Resources\\";				// path to video
 	string save_path = "..\\..\\..\\Resources\\screenshots\\";	// partial path to save screenshots
 	string cur_read_path;
-	string cur_save_path;										// complete path to save screenshots
+	string cur_save_path;				// complete path to save screenshots
 	VideoCapture cap;
-	FILE *file_w;									// point to .txt file to save data
-	Mat img;										// a frame of the video
-	Mat img_resize;									// img resied to 144 x 256
-	Mat img_condence;								// condenced img
+	FILE *file_w;						// point to .txt file to save data
+	Mat img;							// a frame of the video
+	Mat img_resize;						// img resied to 144 x 256
+	Mat img_condence;					// condenced img
 	int vid_num = 0;
-	int num = 0;									// number of frames to save
-	int frame = 0;									// frame counter
+	int num = 0;						// number of frames to save
+	double cur_pos = 0;					// current position in video (milli seconds) 
 
 	file_w = fopen("..\\..\\..\\Resources\\data.txt", "w");
 
 	cur_read_path = read_path + to_string(vid_num) + ".mp4";
 	while (cap.open(cur_read_path)) {
-		while (cap.grab()) {						// grab a fram
-			if (frame++ == 5400) {					// for every 5400 frames
-				cap.retrieve(img);					// retrieve adn resize
-				resize(img, img_resize, Size(256, 144), INTER_AREA);
-				cur_save_path = save_path + to_string(num) + ".png";
-				imwrite(cur_save_path, img_resize);	// save the frame
+		while (cap.set(CAP_PROP_POS_FRAMES, cur_pos) && cap.read(img)) {
+			resize(img, img_resize, Size(256, 144), INTER_AREA);
+			cur_save_path = save_path + to_string(num) + ".png";
+			imwrite(cur_save_path, img_resize);					// save the frame
 
-				img_condence = condence(img, 2);	// condence frame and save data
-				fprintf(file_w, "%d ", img_condence.data[0]);
-				fprintf(file_w, "%d ", img_condence.data[1]);
-				fprintf(file_w, "%d\n", img_condence.data[2]);
+			img_condence = condence(img, 2);					// condence frame and save data
+			fprintf(file_w, "%d ", img_condence.data[0]);
+			fprintf(file_w, "%d ", img_condence.data[1]);
+			fprintf(file_w, "%d\n", img_condence.data[2]);
 
-				frame = 0;							// reset counter
-				num++;
-			}
+			cur_pos += MSEC_DELTA;
+			num++;
 		}
 
+			cur_pos = 0;
 		cur_read_path = read_path + to_string(++vid_num) + ".mp4";
 	}
 
