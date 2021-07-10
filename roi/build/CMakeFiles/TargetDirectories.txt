@@ -1,3 +1,0 @@
-C:/Users/HSI-CHE LIN/start/project/collage/code/roi/build/CMakeFiles/rebuild_cache.dir
-C:/Users/HSI-CHE LIN/start/project/collage/code/roi/build/CMakeFiles/roi.dir
-C:/Users/HSI-CHE LIN/start/project/collage/code/roi/build/CMakeFiles/edit_cache.dir

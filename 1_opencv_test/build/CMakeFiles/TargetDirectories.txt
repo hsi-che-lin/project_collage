@@ -1,3 +1,0 @@
-C:/Users/HSI-CHE LIN/start/project/collage/code/1_opencv_test/build/CMakeFiles/rebuild_cache.dir
-C:/Users/HSI-CHE LIN/start/project/collage/code/1_opencv_test/build/CMakeFiles/opencv_test.dir
-C:/Users/HSI-CHE LIN/start/project/collage/code/1_opencv_test/build/CMakeFiles/edit_cache.dir
