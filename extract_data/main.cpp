@@ -7,40 +7,49 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 
-// #define TEST
+// #define TEST			// trigger the test mode
 
 using namespace std;
 using namespace cv;
 
-const double MSEC_DELTA = 0.5 * 60 * 30;						// interval of time to screenshot
+const double FRAME_DELTA = 60 * 30;								// interval of time to screenshot
 
 // this function return a 1-pixel image which represent the input img
+//  - img: the image to condence
+//  - factor: factor to shrink the image
 Mat condence(Mat img, int factor);
 
-#ifndef TEST
+#ifndef TEST			// if not in the test mode
 
 int main(void)
 {
-	string read_path = "..\\..\\..\\Resources\\";				// path to video
+	string read_path = "..\\..\\..\\Resources\\streams\\";		// partial path to read video
 	string save_path = "..\\..\\..\\Resources\\screenshots\\";	// partial path to save screenshots
-	string cur_read_path;
+	string cur_read_path;				// complete path to read video
 	string cur_save_path;				// complete path to save screenshots
 	VideoCapture cap;
 	FILE *file_w;						// point to .txt file to save data
 	Mat img;							// a frame of the video
 	Mat img_resize;						// img resied to 144 x 256
 	Mat img_condence;					// condenced img
-	int vid_num = 0;
-	int num = 0;						// number of frames to save
-	double cur_pos = 0;					// current position in video (milli seconds) 
+	int vid_num = 0;					// number of video to read
+	int saved_num = 0;					// number of frames saved
+	double cur_frame = 3600;			// current position in video (in frames) 
+	double total_frame;					// total number of frames in this video
+	double cur_pro;						// current progress (in percentages)
 
 	file_w = fopen("..\\..\\..\\Resources\\data.txt", "w");
 
-	cur_read_path = read_path + to_string(vid_num) + ".mp4";
-	while (cap.open(cur_read_path)) {
-		while (cap.set(CAP_PROP_POS_FRAMES, cur_pos) && cap.read(img)) {
+	cur_read_path = read_path + to_string(vid_num++) + ".mp4";	// read first video
+	while (cap.open(cur_read_path)) {							// successfully readd an video
+		total_frame = cap.get(CAP_PROP_FRAME_COUNT);			// reset parameters
+		cur_frame = 3600;
+		cur_pro = 0;
+
+		while (cap.set(CAP_PROP_POS_FRAMES, cur_frame) && cap.read(img) &&
+			   cur_pro <= 0.85 && cur_frame <= 270000) {		// successfully read an image
 			resize(img, img_resize, Size(256, 144), INTER_AREA);
-			cur_save_path = save_path + to_string(num) + ".png";
+			cur_save_path = save_path + to_string(saved_num) + ".png";
 			imwrite(cur_save_path, img_resize);					// save the frame
 
 			img_condence = condence(img, 2);					// condence frame and save data
@@ -48,12 +57,12 @@ int main(void)
 			fprintf(file_w, "%d ", img_condence.data[1]);
 			fprintf(file_w, "%d\n", img_condence.data[2]);
 
-			cur_pos += MSEC_DELTA;
-			num++;
+			cur_frame += FRAME_DELTA;							// update parameters
+			saved_num++;
+			cur_pro = cur_frame / total_frame;
 		}
-
-			cur_pos = 0;
-		cur_read_path = read_path + to_string(++vid_num) + ".mp4";
+																// read next video
+		cur_read_path = read_path + to_string(vid_num++) + ".mp4";
 	}
 
 	fclose(file_w);
