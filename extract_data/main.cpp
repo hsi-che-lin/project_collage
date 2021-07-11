@@ -12,7 +12,7 @@
 using namespace std;
 using namespace cv;
 
-const double FRAME_DELTA = 60 * 30;								// interval of time to screenshot
+const double FRAME_DELTA = 0.5 * 60 * 30;						// interval of time to screenshot
 
 // this function return a 1-pixel image which represent the input img
 //  - img: the image to condence
@@ -34,7 +34,7 @@ int main(void)
 	Mat img_condence;					// condenced img
 	int vid_num = 0;					// number of video to read
 	int saved_num = 0;					// number of frames saved
-	double cur_frame = 3600;			// current position in video (in frames) 
+	double cur_frame = 7200;			// current position in video (in frames) 
 	double total_frame;					// total number of frames in this video
 	double cur_pro;						// current progress (in percentages)
 
@@ -43,12 +43,12 @@ int main(void)
 	cur_read_path = read_path + to_string(vid_num++) + ".mp4";	// read first video
 	while (cap.open(cur_read_path)) {							// successfully readd an video
 		total_frame = cap.get(CAP_PROP_FRAME_COUNT);			// reset parameters
-		cur_frame = 3600;
+		cur_frame = 7200;
 		cur_pro = 0;
 
 		while (cap.set(CAP_PROP_POS_FRAMES, cur_frame) && cap.read(img) &&
-			   cur_pro <= 0.85 && cur_frame <= 270000) {		// successfully read an image
-			resize(img, img_resize, Size(256, 144), INTER_AREA);
+			   cur_pro <= 0.80) {		// successfully read an image
+			resize(img, img_resize, Size(160, 90), INTER_AREA);
 			cur_save_path = save_path + to_string(saved_num) + ".png";
 			imwrite(cur_save_path, img_resize);					// save the frame
 
