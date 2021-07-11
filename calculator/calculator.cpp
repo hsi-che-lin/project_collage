@@ -44,7 +44,7 @@ int main(void)
 													// calculate current ratio
 		ratio_cur = ((double)stream_wid * num_wid) / (stream_hei * num_hei);
 
-		if ((num_wid >= 15 || num_hei >= 15) &&
+		if ((num_wid >= 40 || num_hei >= 40) &&
 		    my_abs(ratio_cur - ratio_tar) < eps) {	// acceptable combination
 			comb[i][0] = num_wid;					// store the combination
 			comb[i][1] = num_hei;
