@@ -52,7 +52,7 @@ int main(void)
 			cur_save_path = save_path + to_string(saved_num) + ".png";
 			imwrite(cur_save_path, img_resize);					// save the frame
 
-			img_condense = condense(img, 2);					// condense frame and save data
+			img_condense = condense(img, 2);					// zcondense frame and save data
 			fprintf(file_w, "%d ", img_condense.data[0]);
 			fprintf(file_w, "%d ", img_condense.data[1]);
 			fprintf(file_w, "%d\n", img_condense.data[2]);
