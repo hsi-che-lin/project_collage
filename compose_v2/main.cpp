@@ -8,7 +8,6 @@
 
 #include <chrono>
 
-
 using namespace std;
 using namespace cv;
 
@@ -45,43 +44,43 @@ void k_nn(pix_val target, vector<pix_val>& pix_val_data, int *index, int k);
 
 int main(void)
 {
-	string target_path = "..\\..\\..\\Resources\\target.jpg";
-	string pix_data_path = "..\\..\\..\\Resources\\data.txt";	// path to the datafile
-	string img_data_path = "..\\..\\..\\Resources\\screenshots\\";
-	vector<pix_val> pix_data;	// datastructure to store whole the data
-	vector<Mat> img_data;
-	int npix_data;					// the total number o data
-	int nimg_data;
-	int x;
-	int y;
-	int pos;
-	int k = 20;
-	int *index;
-	int best_index;
-	int i;
-	double best_score;
-	Mat target;						// the target image
-	Mat tar_smol;					// resized target image
-	Mat tar_big;
-	Mat roi;
-	Mat cur_score;
-	Mat collage;
-	Mat v_unit[69];
-	Mat h_unit[30];
-	pix_val cur_pix;
+	string target_path = "..\\..\\..\\Resources\\target.jpg";		// path to the target image
+	string pix_data_path = "..\\..\\..\\Resources\\data.txt";		// path to the pixel data
+	string img_data_path = "..\\..\\..\\Resources\\screenshots\\";	// path to the image data
+	vector<pix_val> pix_data;	// datastructure to store all the pixel data
+	vector<Mat> img_data;		// datastructure to store all the image data
+	int npix_data;				// the total number of pixel data
+	int nimg_data;				// the total number of image data
+	int x;						// x-coordinate of grids to fill in units
+	int y;						// y-coordinate of grids to fill in units
+	int pos;					// memory location of tar_smol corresponding to x, y
+	int k = 20;					// the number of nearest neighbor to find
+	int *index;					// indices of nearest neighbors
+	int best_index;				// img_data index of best nearest neighbor to put in collage
+	int i;						// loop counter
+	double best_score;			// best score of templatematching
+	Mat target;					// the target image
+	Mat tar_smol;				// shrinked target to produce pixel color value
+	Mat tar_big;				// enlarged target to produce roi to do template match
+	Mat roi;					// to match the templates
+	Mat cur_score;				// current score of templatematching
+	Mat collage;				// result image
+	Mat v_unit[69];				// picture collection of a column
+	Mat h_unit[30];				// collection of multiple columns
+	pix_val cur_pix;			// pixel color value of pixel at pos
 
-	index = (int *)malloc(k * sizeof(int));
+	index = (int *)malloc(k * sizeof(int));						// allocate memory to store indices
 
-	cout << "loading data...\n......\n";
+	cout << "loading data...\n......\n";						// load data
 	npix_data = load_pix_data(pix_data_path, pix_data);
 	nimg_data = load_img_data(img_data_path, img_data);
-	if (npix_data != nimg_data) {
+	if (npix_data != nimg_data) {								// check if two dataset match
 		cout << "the number of pixel data (" << npix_data << ") does not match "
 			    "with the number of image data (" << nimg_data << ")\n";
 		exit(-1);
 	}
 
-	target = imread(target_path);
+	target = imread(target_path);								// load target
 	resize(target, tar_smol, Size(30, 69), INTER_AREA);
 	resize(target, tar_big, Size(160 * 30, 90 * 69), INTER_CUBIC);
 //	imwrite("..\\..\\..\\Resources\\target_big.png", tar_big);
@@ -90,39 +89,39 @@ int main(void)
 //	auto start = chrono::steady_clock::now();
 
 	cout << "composing collage...\n......\n";
-	for (x = 0; x < 30; x++) {
+	for (x = 0; x < 30; x++) {									// for each position
 		for (y = 0; y < 69; y++) {
-			pos = y * tar_smol.step[0] + x * tar_smol.step[1];
-			cur_pix.B = tar_smol.data[pos];
+			pos = y * tar_smol.step[0] + x * tar_smol.step[1];	// read the corresponding pixel value
+			cur_pix.B = tar_smol.data[pos];						// store in a pix_val type variable
 			cur_pix.G = tar_smol.data[pos + 1];
 			cur_pix.R = tar_smol.data[pos + 2];
 
-			k_nn(cur_pix, pix_data, index, k);
+			k_nn(cur_pix, pix_data, index, k);					// find k-nearest neighbor of pixel
 
-			roi = Mat(tar_big, Rect(x * 160, y * 90, 160, 90));
+			roi = Mat(tar_big, Rect(x * 160, y * 90, 160, 90));	// read the corresponding crop
 			best_index = index[0];
 			best_score = 1;
-			for (i = 0; i < k; i++) {
+			for (i = 0; i < k; i++) {							// template matching to find best
 				matchTemplate(roi, img_data[index[i]], cur_score, TM_SQDIFF_NORMED);
-				if (cur_score.at<float>(0) < best_score) {
+				if (cur_score.at<float>(0) < best_score) {		// current one is score is better
 					best_index = index[i];
 					best_score = cur_score.at<float>(0);
 				}
 			}
 
-			v_unit[y] = img_data[best_index];
+			v_unit[y] = img_data[best_index];					// put in current column
 		}
 
-		vconcat(v_unit, 69, h_unit[x]);
+		vconcat(v_unit, 69, h_unit[x]);							// compose a column
 	}
 
 //	auto end = chrono::steady_clock::now();
 //	auto diff = end - start;
 //	cout << chrono::duration<double, milli>(diff).count() << '\n';
 
-	hconcat(h_unit, 30, collage);
+	hconcat(h_unit, 30, collage);								// concatenate composed columns
 	cout << "saving collage...\n......\n";
-	imwrite("..\\..\\..\\Resources\\collage.png", collage);
+	imwrite("..\\..\\..\\Resources\\collage.png", collage);		// save collage
 
 	return 0;
 }
@@ -150,7 +149,7 @@ int load_pix_data(string path, vector<pix_val>& data)
 	datafile >> g;
 	datafile >> r;
 	while (!datafile.eof()) {	// read until datafile is empty
-		bgr.B = (uchar)b;
+		bgr.B = (uchar)b;		// store in a pix_val type variable
 		bgr.G = (uchar)g;
 		bgr.R = (uchar)r;
 		data.push_back(bgr);
@@ -170,16 +169,16 @@ int load_pix_data(string path, vector<pix_val>& data)
 //  - returned value: the total number of data
 int load_img_data(string path, vector<Mat>& data)
 {
-	string cpath;
-	Mat img;
-	int ndata = 0;
+	string cpath;			// complete path to each image
+	Mat img;				// temporarily stored current input image
+	int ndata = 0;			// the total number of data (the returned value)
 
-	cpath = path + to_string(ndata) + ".png";
-	img = imread(cpath);
-	while (!img.empty()) {
-		data.push_back(img);
+	cpath = path + to_string(ndata) + ".png";	// produce first complete path
+	img = imread(cpath);						// try to read a image
+	while (!img.empty()) {						// loop as image is available
+		data.push_back(img);					// store in dataset
 		ndata++;
-
+												// try to read next image
 		cpath = path + to_string(ndata) + ".png";
 		img = imread(cpath);
 	}
@@ -217,20 +216,20 @@ double pix_dis(pix_val a, pix_val b)
 //  - k: the number of the nearest neighbor (should be the length of index)
 void k_nn(pix_val target, vector<pix_val>& pix_data, int *index, int k)
 {
-	double *distances;
-	int ndata;
-	int i, j, m;
+	double *distances;			// distances from target to pixels in pix_data
+	int ndata;					// total number of data in pix_data
+	int i, j, m;				// loop counter
 
 	ndata = pix_data.size();
 	distances = (double *)malloc(ndata * sizeof(double));
 
-	for (i = 0; i < ndata; i++) {
+	for (i = 0; i < ndata; i++) {	// for each pixel in pix_data
 		distances[i] = pix_dis(pix_data[i], target);
 
-		j = 0;
+		j = 0;						// test whether is k-nearest neighbor
 		while (j < k && j < i && distances[index[j]] <= distances[i]) j++;
 
-		if (j != k) {
+		if (j != k) {				// this pixel is now a k-nearest neighbor
 			for (m = k - 1; m > j; m--)
 				index[m] = index[m - 1];
 			index[j] = i;
