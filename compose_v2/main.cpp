@@ -70,8 +70,6 @@ int main(void)
 	Mat h_unit[30];
 	pix_val cur_pix;
 
-	int better = 0;
-
 	index = (int *)malloc(k * sizeof(int));
 
 	cout << "loading data...\n......\n";
@@ -112,8 +110,6 @@ int main(void)
 				}
 			}
 
-			if (best_index == index[19])
-				better++;
 			v_unit[y] = img_data[best_index];
 		}
 
@@ -127,7 +123,6 @@ int main(void)
 	hconcat(h_unit, 30, collage);
 	cout << "saving collage...\n......\n";
 	imwrite("..\\..\\..\\Resources\\collage.png", collage);
-	cout << "better: " << better << '\n';
 
 	return 0;
 }
