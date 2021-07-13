@@ -35,7 +35,7 @@ int main(void)
 
 	cout << (int)img.data[0] << " " << (int)img.data[1] << " " << (int)img.data[2] << '\n';
 
-	imwrite("..\\..\\..\\Resources\\condenced.png", img);
+	imwrite("..\\..\\..\\Resources\\condensed.png", img);
 
 	return 0;
 }
